@@ -101,9 +101,10 @@ class Game {
     const status = player.status;
     status.names = this.playersNamesFor(playerId);
     status.isTurn = this.#currPlayerId === playerId;
-    status.isTurn && (status.topCard = this.#currPlayerCard.status);
     status.isTurn && (status.primaryCardsCount = status.primaryCardsCount + 1);
     status.lastFightDetails = this.#lastFightDetails;
+    status.currCard = this.#currPlayerCard.status;
+    status.ownCard = this.#players[playerId].peekCard().status;
 
     return status;
   }
