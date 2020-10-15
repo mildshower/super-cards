@@ -11,6 +11,7 @@ class Game {
   #cardDeck;
   #currPlayerCard;
   #shuffler;
+  #lastFightDetails;
 
   constructor(cardDeck, distributor, shuffler) {
     this.#players = [];
@@ -28,15 +29,8 @@ class Game {
     return this.#currPlayerId;
   }
 
-  pickCurrPlayerCard() {
-    if (this.#currPlayerCard) return { isPicked: false };
-
-    this.#currPlayerCard = this.#players[this.#currPlayerId].currCard();
-    return { isPicked: true, card: this.#currPlayerCard };
-  }
-
   addPlayer(name) {
-    if (this.isStarted()) return false;
+    if (this.isStarted()) return { isAdded: false };
 
     this.#players.push(new Player(name, this.#shuffler));
 
@@ -45,9 +39,10 @@ class Game {
       this.#players.forEach((player, index) =>
         player.addCards(givenCards[index])
       );
+      this.#currPlayerCard = this.#players[this.#currPlayerId].currCard();
     }
 
-    return true;
+    return { isAdded: true, id: this.#players.length - 1 };
   }
 
   get winner() {
@@ -79,8 +74,6 @@ class Game {
   fight(trait) {
     if (this.winner.isWon || !this.isStarted()) return { hasFought: false };
 
-    if (!this.#currPlayerCard) this.pickCurrPlayerCard();
-
     const otherPlayerId = getOtherPlayerId(this.#currPlayerId);
     const otherPlayerCard = this.#players[otherPlayerId].currCard();
     const currCardWins = this.#currPlayerCard.doesWinAgainst(
@@ -88,15 +81,37 @@ class Game {
       trait
     );
     const winnerId = currCardWins ? this.#currPlayerId : otherPlayerId;
-    const fightDetails = this.generateFightResult(
+    this.#players[winnerId].addCards([this.#currPlayerCard, otherPlayerCard]);
+    this.#lastFightDetails = this.generateFightResult(
       winnerId,
       otherPlayerCard,
       trait
     );
     this.#currPlayerId = winnerId;
-    this.#currPlayerCard = null;
+    this.#currPlayerCard = this.#players[this.#currPlayerId].currCard();
 
-    return { hasFought: true, fightDetails };
+    return { hasFought: true, hasWon: currCardWins };
+  }
+
+  playerDetails(playerId) {
+    const player = this.#players[playerId];
+
+    if (!player) return {};
+
+    const status = player.status;
+    status.isTurn = this.#currPlayerId === playerId;
+    status.isTurn && (status.topCard = this.#currPlayerCard.status);
+    status.isTurn && (status.primaryCardsCount = status.primaryCardsCount + 1);
+    status.lastFightDetails = this.#lastFightDetails;
+
+    return status;
+  }
+
+  playersNamesFor(playerId) {
+    return {
+      own: this.#players[playerId].status.name,
+      opponent: this.#players[getOtherPlayerId(playerId)].status.name,
+    };
   }
 }
 

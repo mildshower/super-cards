@@ -26,14 +26,23 @@ class Player {
       this.#secondaryDeck = [];
     }
 
-    return this.#cards.pop();
+    return this.#cards.shift();
+  }
+
+  peekCard() {
+    if (this.#cards.length == 0) {
+      this.#cards = this.#shuffler(this.#secondaryDeck);
+      this.#secondaryDeck = [];
+    }
+
+    return this.#cards[0];
   }
 
   get status() {
     return {
       name: this.#name,
       primaryCardsCount: this.#cards.length,
-      secondaryCardCount: this.#secondaryDeck.length,
+      secondaryCardsCount: this.#secondaryDeck.length,
     };
   }
 }
