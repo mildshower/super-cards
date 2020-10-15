@@ -103,6 +103,9 @@ class Game {
     status.isTurn = this.#currPlayerId === playerId;
     status.isTurn && (status.primaryCardsCount = status.primaryCardsCount + 1);
     status.lastFightDetails = this.#lastFightDetails;
+    status.lastFightDetails &&
+      (status.lastFightDetails.hasWon =
+        this.#lastFightDetails.winner.id === playerId);
     status.currCard = this.#currPlayerCard.status;
     status.ownCard = this.#players[playerId].peekCard().status;
 
