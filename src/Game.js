@@ -93,12 +93,13 @@ class Game {
     return { hasFought: true, hasWon: currCardWins };
   }
 
-  playerDetails(playerId) {
+  statusFor(playerId) {
     const player = this.#players[playerId];
 
     if (!player) return {};
 
     const status = player.status;
+    status.names = this.playersNamesFor(playerId);
     status.isTurn = this.#currPlayerId === playerId;
     status.isTurn && (status.topCard = this.#currPlayerCard.status);
     status.isTurn && (status.primaryCardsCount = status.primaryCardsCount + 1);

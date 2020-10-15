@@ -8,8 +8,7 @@ const {
   hostGame,
   serveIsGameStarted,
   joinGame,
-  servePlayerDetails,
-  servePlayersNames,
+  serveGameStatus,
   fight,
 } = require("./handlers");
 
@@ -27,8 +26,7 @@ app.use(plantUserData);
 app.get("/game/host", hostGame);
 app.get("/game/isStarted", serveIsGameStarted);
 app.get("/game/join", joinGame);
-app.get("/game/playerDetails", servePlayerDetails);
-app.get("/game/playersNames", servePlayersNames);
+app.get("/game/playerDetails", serveGameStatus);
 app.get("/game/fight", fight);
 
 module.exports = app;

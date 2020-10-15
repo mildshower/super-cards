@@ -62,14 +62,9 @@ const joinGame = function (req, res) {
   res.cookie("_SID", sessionId).json({ isJoined: true });
 };
 
-const servePlayerDetails = function (req, res) {
-  const playerDetails = req.game.playerDetails(req.playerId);
+const serveGameStatus = function (req, res) {
+  const playerDetails = req.game.statusFor(req.playerId);
   res.json(playerDetails);
-};
-
-const servePlayersNames = function (req, res) {
-  const playersNames = req.game.playersNamesFor(req.playerId);
-  res.json(playersNames);
 };
 
 const fight = function (req, res) {
@@ -84,7 +79,6 @@ module.exports = {
   hostGame,
   serveIsGameStarted,
   joinGame,
-  servePlayerDetails,
-  servePlayersNames,
+  serveGameStatus,
   fight,
 };
