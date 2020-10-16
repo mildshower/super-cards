@@ -86,21 +86,15 @@ class Game {
   }
 
   statusFor(playerId) {
-    const player = this.#players[playerId];
-
-    if (!player) return {};
-
-    const status = player.status;
-    status.names = this.playersNamesFor(playerId);
-    status.isTurn = this.#currPlayerId === playerId;
+    const status = {};
+    status.isOwnTurn = this.#currPlayerId === playerId;
     status.lastFightDetails = this.#lastFightDetails;
     status.lastFightDetails &&
       (status.lastFightDetails.hasWon =
         this.#lastFightDetails.winner.id === playerId);
-    status.opponentCard = status.isTurn
-      ? null
-      : this.#players[getOtherPlayerId(playerId)].peekCard().status;
-    status.ownCard = this.#players[playerId].peekCard().status;
+    status.myself = this.#players[playerId].status;
+    status.opponent = this.#players[getOtherPlayerId(playerId)].status;
+    status.isOwnTurn && delete status.opponent.topCard;
 
     return status;
   }

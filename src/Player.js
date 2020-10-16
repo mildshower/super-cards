@@ -29,20 +29,17 @@ class Player {
     return this.#cards.shift();
   }
 
-  peekCard() {
+  get status() {
     if (this.#cards.length == 0) {
       this.#cards = this.#shuffler(this.#secondaryDeck);
       this.#secondaryDeck = [];
     }
 
-    return this.#cards[0];
-  }
-
-  get status() {
     return {
       name: this.#name,
-      primaryCardsCount: this.#cards.length,
-      secondaryCardsCount: this.#secondaryDeck.length,
+      currDeck: this.#cards.length,
+      comingDeck: this.#secondaryDeck.length,
+      topCard: this.#cards[0] && this.#cards[0].status,
     };
   }
 }
