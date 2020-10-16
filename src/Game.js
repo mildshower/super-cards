@@ -9,7 +9,6 @@ class Game {
   #currPlayerId;
   #distributor;
   #cardDeck;
-  #currPlayerCard;
   #shuffler;
   #lastFightDetails;
 
@@ -25,10 +24,6 @@ class Game {
     return this.#players.length === MAX_PLAYER_COUNT;
   }
 
-  get currPlayerId() {
-    return this.#currPlayerId;
-  }
-
   addPlayer(name) {
     if (this.isStarted()) return { isAdded: false };
 
@@ -39,7 +34,6 @@ class Game {
       this.#players.forEach((player, index) =>
         player.addCards(givenCards[index])
       );
-      this.#currPlayerCard = this.#players[this.#currPlayerId].currCard();
     }
 
     return { isAdded: true, id: this.#players.length - 1 };
@@ -55,10 +49,10 @@ class Game {
     return { isWon: false };
   }
 
-  generateFightResult(winnerId, otherPlayerCard, trait) {
+  generateFightResult(winnerId, currCard, otherPlayerCard, trait) {
     const otherPlayerId = getOtherPlayerId(this.#currPlayerId);
     const playedCards = [];
-    playedCards[this.#currPlayerId] = this.#currPlayerCard;
+    playedCards[this.#currPlayerId] = currCard;
     playedCards[otherPlayerId] = otherPlayerCard;
     const looserId = getOtherPlayerId(winnerId);
 
@@ -74,21 +68,19 @@ class Game {
   fight(trait) {
     if (this.winner.isWon || !this.isStarted()) return { hasFought: false };
 
+    const currCard = this.#players[this.#currPlayerId].currCard();
     const otherPlayerId = getOtherPlayerId(this.#currPlayerId);
     const otherPlayerCard = this.#players[otherPlayerId].currCard();
-    const currCardWins = this.#currPlayerCard.doesWinAgainst(
-      otherPlayerCard,
-      trait
-    );
+    const currCardWins = currCard.doesWinAgainst(otherPlayerCard, trait);
     const winnerId = currCardWins ? this.#currPlayerId : otherPlayerId;
-    this.#players[winnerId].addCards([this.#currPlayerCard, otherPlayerCard]);
+    this.#players[winnerId].addCards([currCard, otherPlayerCard]);
     this.#lastFightDetails = this.generateFightResult(
       winnerId,
+      currCard,
       otherPlayerCard,
       trait
     );
     this.#currPlayerId = winnerId;
-    this.#currPlayerCard = this.#players[this.#currPlayerId].currCard();
 
     return { hasFought: true, hasWon: currCardWins };
   }
@@ -101,12 +93,13 @@ class Game {
     const status = player.status;
     status.names = this.playersNamesFor(playerId);
     status.isTurn = this.#currPlayerId === playerId;
-    status.isTurn && (status.primaryCardsCount = status.primaryCardsCount + 1);
     status.lastFightDetails = this.#lastFightDetails;
     status.lastFightDetails &&
       (status.lastFightDetails.hasWon =
         this.#lastFightDetails.winner.id === playerId);
-    status.currCard = this.#currPlayerCard.status;
+    status.opponentCard = status.isTurn
+      ? null
+      : this.#players[getOtherPlayerId(playerId)].peekCard().status;
     status.ownCard = this.#players[playerId].peekCard().status;
 
     return status;
