@@ -4,7 +4,7 @@ const Card = require("./Card");
 const cardDetails = require("./cardData.json");
 const { distributeRandom, shuffle, pickRandom } = require("./cardTools");
 
-const MAX_CARD_COUNT = 2;
+const MAX_CARD_COUNT = 4;
 
 const generateDeck = (cardDetails) => {
   const chosenCards = pickRandom(MAX_CARD_COUNT, cardDetails);

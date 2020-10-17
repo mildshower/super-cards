@@ -87,13 +87,12 @@ class Game {
   inPlayStatus(playerId) {
     const status = { state: "inPlay" };
     status.isOwnTurn = this.#currPlayerId === playerId;
-    status.lastFightDetails = this.#lastFightDetails;
     status.myself = this.#players[playerId].status;
     status.opponent = this.#players[getOtherPlayerId(playerId)].status;
     status.isOwnTurn && delete status.opponent.topCard;
-    status.lastFightDetails &&
-      (status.lastFightDetails.hasWon =
-        this.#lastFightDetails.winner.id === playerId);
+    status.lastFight = this.#lastFightDetails;
+    status.lastFight &&
+      (status.lastFight.hasWon = status.lastFight.winner.id === playerId);
 
     return status;
   }
