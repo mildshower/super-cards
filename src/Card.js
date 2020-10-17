@@ -43,6 +43,8 @@ class Card {
         return this.#height >= otherCard.#height;
       case "weight":
         return this.#weight >= otherCard.#weight;
+      default:
+        throw new Error(`Invalid Trait: ${trait}`);
     }
   }
 

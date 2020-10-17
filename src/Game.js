@@ -24,16 +24,20 @@ class Game {
     return this.#players.length === MAX_PLAYER_COUNT;
   }
 
+  distributeCards() {
+    const givenCards = this.#distributor(this.#cardDeck, MAX_PLAYER_COUNT);
+    this.#players.forEach((player, index) =>
+      player.addCards(givenCards[index])
+    );
+  }
+
   addPlayer(name) {
     if (this.isStarted()) return { isAdded: false };
 
     this.#players.push(new Player(name, this.#shuffler));
 
     if (this.isStarted()) {
-      const givenCards = this.#distributor(this.#cardDeck, MAX_PLAYER_COUNT);
-      this.#players.forEach((player, index) =>
-        player.addCards(givenCards[index])
-      );
+      this.distributeCards();
     }
 
     return { isAdded: true, id: this.#players.length - 1 };
@@ -49,14 +53,14 @@ class Game {
     return { isWon: false };
   }
 
-  generateFightResult(winnerId, currCard, otherPlayerCard, trait) {
+  registerFightResult(winnerId, currCard, otherCard, trait) {
     const otherPlayerId = getOtherPlayerId(this.#currPlayerId);
     const playedCards = [];
     playedCards[this.#currPlayerId] = currCard;
-    playedCards[otherPlayerId] = otherPlayerCard;
+    playedCards[otherPlayerId] = otherCard;
     const looserId = getOtherPlayerId(winnerId);
 
-    return {
+    this.#lastFightDetails = {
       trait,
       winner: { ...this.#players[winnerId].status, id: winnerId },
       looser: { ...this.#players[looserId].status, id: looserId },
@@ -68,42 +72,30 @@ class Game {
   fight(trait) {
     if (this.winner.isWon || !this.isStarted()) return { hasFought: false };
 
-    const currCard = this.#players[this.#currPlayerId].currCard();
     const otherPlayerId = getOtherPlayerId(this.#currPlayerId);
-    const otherPlayerCard = this.#players[otherPlayerId].currCard();
-    const currCardWins = currCard.doesWinAgainst(otherPlayerCard, trait);
-    const winnerId = currCardWins ? this.#currPlayerId : otherPlayerId;
-    this.#players[winnerId].addCards([currCard, otherPlayerCard]);
-    this.#lastFightDetails = this.generateFightResult(
-      winnerId,
-      currCard,
-      otherPlayerCard,
-      trait
-    );
+    const currCard = this.#players[this.#currPlayerId].currCard();
+    const otherCard = this.#players[otherPlayerId].currCard();
+    const hasWon = currCard.doesWinAgainst(otherCard, trait);
+    const winnerId = hasWon ? this.#currPlayerId : otherPlayerId;
+    this.#players[winnerId].addCards([currCard, otherCard]);
+    this.registerFightResult(winnerId, currCard, otherCard, trait);
     this.#currPlayerId = winnerId;
 
-    return { hasFought: true, hasWon: currCardWins };
+    return { hasFought: true, hasWon };
   }
 
   statusFor(playerId) {
     const status = {};
     status.isOwnTurn = this.#currPlayerId === playerId;
     status.lastFightDetails = this.#lastFightDetails;
-    status.lastFightDetails &&
-      (status.lastFightDetails.hasWon =
-        this.#lastFightDetails.winner.id === playerId);
     status.myself = this.#players[playerId].status;
     status.opponent = this.#players[getOtherPlayerId(playerId)].status;
     status.isOwnTurn && delete status.opponent.topCard;
+    status.lastFightDetails &&
+      (status.lastFightDetails.hasWon =
+        this.#lastFightDetails.winner.id === playerId);
 
     return status;
-  }
-
-  playersNamesFor(playerId) {
-    return {
-      own: this.#players[playerId].status.name,
-      opponent: this.#players[getOtherPlayerId(playerId)].status.name,
-    };
   }
 }
 

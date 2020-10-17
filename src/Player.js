@@ -20,21 +20,20 @@ class Player {
     return this.#cards.length + this.#secondaryDeck.length > 0;
   }
 
-  currCard() {
+  tryFillCurrCards() {
     if (this.#cards.length == 0) {
       this.#cards = this.#shuffler(this.#secondaryDeck);
       this.#secondaryDeck = [];
     }
+  }
 
+  currCard() {
+    this.tryFillCurrCards();
     return this.#cards.shift();
   }
 
   get status() {
-    if (this.#cards.length == 0) {
-      this.#cards = this.#shuffler(this.#secondaryDeck);
-      this.#secondaryDeck = [];
-    }
-
+    this.tryFillCurrCards();
     return {
       name: this.#name,
       currDeck: this.#cards.length,
