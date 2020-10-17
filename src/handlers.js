@@ -3,9 +3,8 @@ const Game = require("./Game");
 const Card = require("./Card");
 const cardDetails = require("./cardData.json");
 const { distributeRandom, shuffle, pickRandom } = require("./cardTools");
-const { RSA_NO_PADDING } = require("constants");
 
-const MAX_CARD_COUNT = 52;
+const MAX_CARD_COUNT = 2;
 
 const generateDeck = (cardDetails) => {
   const chosenCards = pickRandom(MAX_CARD_COUNT, cardDetails);
@@ -50,12 +49,10 @@ const joinGame = function (req, res) {
 
   if (!game) return res.json({ error: `${gameId} is invalid Game Id` });
 
-  const { isAdded, id } = game.addPlayer(pName);
-
-  if (!isAdded) return res.json({ error: `Game is already started` });
+  if (game.isStarted()) return res.json({ error: `Game is already started` });
 
   const sessionId = req.app.locals.sessions.addSession({
-    playerId: id,
+    playerId: game.addPlayer(pName).id,
     gameId,
   });
 

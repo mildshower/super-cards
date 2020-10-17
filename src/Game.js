@@ -47,7 +47,7 @@ class Game {
     const playersWithCard = this.#players.filter((p) => p.hasCards());
 
     if (this.isStarted() && playersWithCard.length < MAX_PLAYER_COUNT) {
-      return { isWon: true, winner: playersWithCard[0] };
+      return { isWon: true, winner: this.#lastFightDetails.winner };
     }
 
     return { isWon: false };
@@ -84,8 +84,8 @@ class Game {
     return { hasFought: true, hasWon };
   }
 
-  statusFor(playerId) {
-    const status = {};
+  inPlayStatus(playerId) {
+    const status = { state: "inPlay" };
     status.isOwnTurn = this.#currPlayerId === playerId;
     status.lastFightDetails = this.#lastFightDetails;
     status.myself = this.#players[playerId].status;
@@ -96,6 +96,16 @@ class Game {
         this.#lastFightDetails.winner.id === playerId);
 
     return status;
+  }
+
+  statusFor(playerId) {
+    if (!this.isStarted()) return { state: "notStarted" };
+
+    const { isWon, winner } = this.winner;
+    if (isWon)
+      return { state: "over", winner, isWinner: winner.id === playerId };
+
+    return this.inPlayStatus(playerId);
   }
 }
 
