@@ -7,4 +7,4 @@ const main = function (providedPort) {
   app.listen(port, () => console.log(`listening on ${port}...`));
 };
 
-main(+process.argv[2]);
+main(+process.env.PORT);

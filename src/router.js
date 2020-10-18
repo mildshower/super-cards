@@ -20,7 +20,7 @@ app.locals.games = new Games();
 app.use(logger);
 app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
-
+app.use(express.static("public"));
 app.use(plantUserData);
 
 app.get("/game/host", hostGame);
