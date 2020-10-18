@@ -10,10 +10,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: main
       - run: pwd
       - run: ls
       - uses: actions/checkout@master
         with:
           repository: mildshower/super-card-react
+          path: another
       - run: pwd
       - run: ls
