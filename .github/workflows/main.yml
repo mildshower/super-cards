@@ -14,7 +14,7 @@ jobs:
       - run: ls
       - uses: actions/checkout@master
         with:
-          name: mildshower/super-card-react
+          name: mildshower/super-card-react       <-- clone https://github.com/mildshower/super-card-react
           ref: refs/heads/release
       - run: pwd
       - run: ls
